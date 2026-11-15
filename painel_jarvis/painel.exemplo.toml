@@ -11,27 +11,29 @@ disco = "/"
 disco_max_pct = 90
 memoria_min_pct = 10
 
-[servicos]                # systemd: serviço parado ou timer que falhou vira alerta
-usuario = true            # true = systemctl --user; false = do sistema
-lista = ["meu-jarvis.service", "backup.timer"]
+# Tire o "# " do começo das linhas da seção que quiser ligar e troque os nomes de exemplo pelos seus.
 
-[rotinas]                 # cron/scripts pelo log: erro nas últimas linhas ou parado além do prazo
-lista = [
-  { nome = "backup", log = "~/logs/backup.log", max_horas = 26 },
-]
+# [servicos]                # systemd: serviço parado ou timer que falhou vira alerta
+# usuario = true            # true = systemctl --user; false = do sistema
+# lista = ["meu-jarvis.service", "backup.timer"]
 
-[sites]                   # um GET leve por site
-lista = ["https://example.com"]
+# [rotinas]                 # cron/scripts pelo log: erro nas últimas linhas ou parado além do prazo
+# lista = [
+#   { nome = "backup", log = "~/logs/backup.log", max_horas = 26 },
+# ]
 
-[git]                     # o que fizemos: commits de 24 h e 7 dias
-projetos = ["~/projetos/meu-jarvis"]
+# [sites]                   # um GET leve por site
+# lista = ["https://example.com"]
+
+# [git]                     # o que fizemos: commits de 24 h e 7 dias
+# projetos = ["~/projetos/meu-jarvis"]
 
 # Quadro a partir de um JSON que OUTRO script grava (estatísticas, vendas, fila).
 # O painel só lê o arquivo; quem coleta é o seu script.
-[[uso]]
-id = "site"
-titulo = "Meu site"
-arquivo = "~/.local/share/meu-site/uso.json"
-max_horas = 30
-frase = ["visitas em 24 h", "visitas_24h"]
-campos = [["visitas 7 dias", "visitas_7d"], ["chat 7 dias", "chat.conversas"]]
+# [[uso]]
+# id = "site"
+# titulo = "Meu site"
+# arquivo = "~/.local/share/meu-site/uso.json"
+# max_horas = 30
+# frase = ["visitas em 24 h", "visitas_24h"]
+# campos = [["visitas 7 dias", "visitas_7d"], ["chat 7 dias", "chat.conversas"]]

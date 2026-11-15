@@ -1,8 +1,16 @@
 # painel-jarvis
 
-**Você pergunta ao seu Jarvis "o que falhou hoje?" e ele responde com o estado real da sua máquina, das suas rotinas e dos seus sites — e o mesmo painel abre no celular, como app.**
+[![painel-jarvis: o que falhou hoje? Seu Jarvis responde](guia/assets/banner.jpg)](https://inematds.github.io/painel-jarvis/guia/)
 
-[English](README.en.md) · [Español](README.es.md) · [Guia](https://inematds.github.io/painel-jarvis/guia/)
+**🇧🇷 [Português](README.md) · 🇺🇸 [English](README.en.md) · 🇪🇸 [Español](README.es.md)**
+
+## O que é
+
+Quem deixa coisas rodando sozinhas no computador (um assistente, um backup, um robô que publica vídeo, um site) costuma saber que algo quebrou só quando alguém reclama. O painel-jarvis é um pequeno programa em Python que olha tudo isso por você: memória e disco da máquina, serviços, rotinas, sites e o que mudou nos seus projetos. Você vê num painel que abre no celular como um app, ou simplesmente pergunta ao seu assistente de IA "o que falhou hoje?". Precisa de um computador com Linux e Python 3.11 ou mais novo.
+
+## 📖 Guia de uso
+
+Guia completo (landing + passo a passo): **https://inematds.github.io/painel-jarvis/guia/**
 
 Python puro (só a biblioteca padrão, 3.11+). Um núcleo, três jeitos de usar:
 
@@ -30,8 +38,9 @@ O quadro `uso` é a ponte para os seus números: o seu script coleta (e decide s
 ## Instalar
 
 ```bash
-pip install git+https://github.com/inematds/painel-jarvis
-painel-jarvis exemplo > ~/.config/painel-jarvis/painel.toml   # edite: serviços, rotinas, sites, projetos
+pipx install git+https://github.com/inematds/painel-jarvis    # ou pip install num venv (ative o venv antes)
+mkdir -p ~/.config/painel-jarvis
+painel-jarvis exemplo > ~/.config/painel-jarvis/painel.toml   # liga a máquina; tire o "#" das seções que quiser
 painel-jarvis cartoes                                          # confere no terminal
 ```
 
@@ -39,10 +48,10 @@ painel-jarvis cartoes                                          # confere no term
 
 | # | Passo | Comando | Quem |
 |---|---|---|---|
-| 1 | Instalar o pacote | `pip install git+https://github.com/inematds/painel-jarvis` | 🧠 você |
+| 1 | Instalar o pacote | `pipx install git+https://github.com/inematds/painel-jarvis` | 🧠 você |
 | 2 | Escrever o `painel.toml` (o que vigiar) | `painel-jarvis exemplo > ~/.config/painel-jarvis/painel.toml` | 🧠 você |
 | 3 | Conferir os quadros no terminal | `painel-jarvis cartoes` · `painel-jarvis falhas` | 🧠 você |
-| 4 | Ligar no Jarvis: INTELECTO | `plugins = ["painel"]` no `config.json` ou `INTELECTO_PLUGINS=painel` | 🧠 você |
+| 4 | Ligar no Jarvis: INTELECTO (mesmo Python: mesmo venv ou `pipx inject intelecto …`) | `"plugins": ["painel"]` no `config.json` ou `INTELECTO_PLUGINS=painel` | 🧠 você |
 | 5 | Ligar em qualquer agente MCP | `claude mcp add painel -- painel-jarvis mcp` | 🧠 você |
 | 6 | Definir a senha do painel web | `painel-jarvis senha` | 🧠 você |
 | 7 | Deixar o painel web no ar | `painel-jarvis web --bind 0.0.0.0` (serviço systemd, ver abaixo) | ⚙️ systemd |
@@ -52,8 +61,11 @@ painel-jarvis cartoes                                          # confere no term
 
 ### Serviço systemd (passo 7)
 
-```ini
-# ~/.config/systemd/user/painel-jarvis.service
+Defina a senha antes (`painel-jarvis senha`); sem ela o serviço fica só em 127.0.0.1.
+
+```bash
+mkdir -p ~/.config/systemd/user
+cat > ~/.config/systemd/user/painel-jarvis.service <<'FIM'
 [Unit]
 Description=painel-jarvis web
 [Service]
@@ -61,9 +73,11 @@ ExecStart=%h/.local/bin/painel-jarvis web --bind 0.0.0.0
 Restart=on-failure
 [Install]
 WantedBy=default.target
+FIM
+systemctl --user daemon-reload
 ```
 
-`systemctl --user enable --now painel-jarvis`
+`systemctl --user enable --now painel-jarvis` e `loginctl enable-linger $USER` (sobe no boot e não morre no logout). Instalou num venv? Troque o `ExecStart` pelo caminho `~/.venv-painel/bin/painel-jarvis`.
 
 ## Segurança
 

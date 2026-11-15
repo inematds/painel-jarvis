@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "painel-jarvis"
-version = "1.0.0"
+version = "1.0.1"
 description = "O painel da sua máquina e das suas rotinas como plugin de qualquer Jarvis (INTELECTO, MCP) e instalável no celular. Python puro."
 readme = "README.md"
 requires-python = ">=3.11"

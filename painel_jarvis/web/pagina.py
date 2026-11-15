@@ -39,7 +39,9 @@ function desenhar(d){document.title=d.titulo;document.getElementById('tit').inne
   f.textContent=d.alertas.length?d.alertas.length+' ponto(s) de atenção: '+d.alertas.slice(0,4).join(' · '):'Tudo em ordem.';
   document.getElementById('cards').innerHTML=d.cartoes.map(function(c){return'<section class="c '+esc(c.estado)+(abertos[c.id]?' aberto':'')+'" data-id="'+esc(c.id)+'"><h2>'+esc(c.titulo)+'<span class="selo s-'+esc(c.estado)+'">'+(NOME[c.estado]||c.estado)+'</span></h2><p class="frase">'+esc(c.frase)+'</p>'+c.linhas.map(lin).join('')+'<div class="det">'+c.detalhe.map(lin).join('')+'</div></section>'}).join('');
   document.getElementById('hora').textContent='lido às '+new Date(d.gerado_em*1000).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
-function ler(){fetch('/api/painel',{credentials:'same-origin',cache:'no-store'}).then(function(r){if(r.status===401){location.href='/login';throw 0}return r.json()}).then(desenhar).catch(function(){})}
+function semRede(){var f=document.getElementById('faixa');f.className='faixa';f.textContent='Sem conexão com o painel: mostrando a última leitura.'}
+function ler(){fetch('/api/painel',{credentials:'same-origin',cache:'no-store'}).then(function(r){if(r.status===401){location.href='/login';throw 0}return r.json()}).then(desenhar).catch(function(e){if(e!==0)semRede()})}
+addEventListener('offline',semRede);addEventListener('online',ler);
 document.addEventListener('click',function(e){var c=e.target.closest('.c');if(!c)return;abertos[c.dataset.id]=!abertos[c.dataset.id];c.classList.toggle('aberto')});
 ler();setInterval(ler,(window.ATUALIZAR||60)*1000);document.addEventListener('visibilitychange',function(){if(!document.hidden)ler()});
 })();"""
@@ -63,7 +65,7 @@ def login(titulo, msg=""):
 
 
 def manifesto(titulo):
-    return {"name": titulo, "short_name": titulo[:12], "start_url": "/", "scope": "/", "id": "/", "display": "standalone",
+    return {"name": titulo, "short_name": titulo if len(titulo) <= 12 else "Painel", "start_url": "/", "scope": "/", "id": "/", "display": "standalone",
             "background_color": COR, "theme_color": COR, "lang": "pt-BR",
             "icons": [{"src": "/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
                       {"src": "/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},

@@ -95,7 +95,9 @@ class Painel(BaseHTTPRequestHandler):
             return self._ir("/login", {"Set-Cookie": f"{COOKIE}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax"})
         if p != "/login":
             return self._envia(404, "não achei")
-        ip = self.headers.get("X-Forwarded-For", self.client_address[0]).split(",")[0].strip()
+        ip = self.client_address[0]
+        if ip in ("127.0.0.1", "::1"):  # só um túnel/proxy local pode dizer o IP de verdade
+            ip = self.headers.get("X-Forwarded-For", ip).split(",")[-1].strip()
         if bloqueado(ip):
             return self._envia(429, pagina.login(self._titulo(), "Muitas tentativas. Espere 15 minutos."))
         n = min(int(self.headers.get("Content-Length") or 0), 4096)
@@ -112,9 +114,9 @@ def servir(porta=8790, bind=None, config=None):
     cfg = config if config is not None else cfgmod.carregar()
     bind = bind or cfg.get("painel", {}).get("bind", "127.0.0.1")
     if bind not in ("127.0.0.1", "localhost", "::1") and not senha.tem_senha():
-        print(f"sem senha definida: ficando em 127.0.0.1 (pedido: {bind}). Defina com: painel-jarvis senha")
+        print(f"sem senha definida: ficando em 127.0.0.1 (pedido: {bind}). Defina com: painel-jarvis senha", flush=True)
         bind = "127.0.0.1"
     Painel.config = cfg
     srv = ThreadingHTTPServer((bind, porta), Painel)
-    print(f"painel-jarvis em http://{bind}:{srv.server_address[1]}/ ({'com senha' if senha.tem_senha() else 'sem senha, só esta máquina'})")
+    print(f"painel-jarvis em http://{bind}:{srv.server_address[1]}/ ({'com senha' if senha.tem_senha() else 'sem senha, só esta máquina'})", flush=True)
     srv.serve_forever()

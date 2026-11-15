@@ -17,7 +17,7 @@ from . import VERSAO
 def main(argv=None):
     a = list(sys.argv[1:] if argv is None else argv)
     cmd = a.pop(0) if a else "cartoes"
-    if cmd in ("-h", "--help", "ajuda"):
+    if cmd in ("-h", "--help", "ajuda") or "-h" in a or "--help" in a:
         print(__doc__.strip())
         return 0
     if cmd in ("-v", "--version", "versao"):
@@ -47,8 +47,13 @@ def main(argv=None):
         if s != getpass.getpass("repita: "):
             print("as duas não batem")
             return 1
-        senha.definir(s)
-        print("senha gravada em ~/.config/painel-jarvis/senha.json")
+        try:
+            senha.definir(s)
+        except ValueError as e:
+            print(e)
+            return 1
+        from . import config
+        print(f"senha gravada em {os.path.join(config.PASTA, 'senha.json')}")
         return 0
     if cmd == "exemplo":
         with open(os.path.join(os.path.dirname(__file__), "painel.exemplo.toml"), encoding="utf-8") as f:
